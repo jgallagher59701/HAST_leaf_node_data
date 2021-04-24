@@ -1,0 +1,21 @@
+What's here: 
+
+EM40647_Data.csv: Data from the METER logger, five probes connected
+
+EM40647_Data_hourly.csv: ... sampled hourly
+
+EM40647_Data_hourly_corrected.csv: EM40647_Data.csv processed so that
+hourly samples are corrected for the failed date/time sync. Based on
+notes, we determined the logger was read on 3/27/21 at about 1600 MST
+
+node_2_backyard_03.2021.csv: Raw data from the leaf node's SD card
+
+node_2_backyard_03.2021_decoded.csv: I decoded the unix time code to
+human-readable dates.
+
+node_2_backyard_03.2021_decoded_hourly.csv: The raw data, with decoded
+timestamps and sampled hourly.
+
+Python code used to process the data:
+process_meter.py
+process_node_data.py
