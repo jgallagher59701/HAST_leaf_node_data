@@ -1,0 +1,8 @@
+
+The data from these files comes from two nodes buried in _snow_ (not
+dirt) that ran until their batteries ran out. It turns out that's not
+100% true - the batteries were depleted to about 3.10 volts and the
+MCUs stopped. Without a load the battery voltages were about 3.68 v.
+
+These nodes had newer software and did not have the bug where
+temperature was recorded in an unsigned variable.
