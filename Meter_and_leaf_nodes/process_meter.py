@@ -57,7 +57,7 @@ def process_values(data_file, offset, sample_interval):
                 print('blank', line, end='', sep=',')
                 continue
             elif line_num == 3:
-                print('Original Time',line, end='', sep=',')
+                print('Original Time', line, end='', sep=',')
                 continue
 
             fields = line.strip().split(",")
@@ -79,7 +79,7 @@ def process_values(data_file, offset, sample_interval):
                 time_offset = timedelta(seconds=offset)
                 new_time = time_obj + time_offset
                 # print(f"Old time: {msg_time}, new time: {new_time}")
-                print(f"{fields[0]},{new_time}", end='')        # ,{fields[1:]}")
+                print(fields[0], new_time, sep=',', end=',')        # ,{fields[1:]}")
                 print(*fields[1:], sep=",")
 
 
