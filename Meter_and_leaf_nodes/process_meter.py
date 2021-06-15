@@ -70,8 +70,9 @@ def process_values(data_file, offset, sample_interval):
             hours = int(time[3])
             minutes = int(time[4])
             if minutes % sample_interval == 0:
-                if time[5] == "PM":
-                    hours = (hours + 12) % 24
+                if time[5] == "PM":             # 12 PM == 12, 1 PM == 13
+                    if hours < 12:
+                        hours = (hours + 12) % 24
                 else:
                     hours = hours % 12          # 1 AM == 1, 2 AM == 2, ... 12 AM == 0
 
