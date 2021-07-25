@@ -2,6 +2,13 @@
 Process data stored in the SD cards and logs from the main node from the leaf nodes.
 
 James Gallagher <jgallagher@opendap.org> 4/24/21
+
+7/25/21 Hacked the code for the 'main node' CSV data files to match the newer format.
+The sample interval option is no longer useful except for old data files since the
+leaf node now longer samples multiple times per minute. By default (--sample-interval=0)
+prints every line of data in the CSV file.
+
+Added RSSI output.
 """
 
 import argparse
@@ -9,19 +16,11 @@ from datetime import datetime
 
 
 def main():
-    # data_file = "node_2_backyard_03.2021.csv"
-    # sample_interval = 60  # in minutes; 60 == hourly samples
-
     parser = argparse.ArgumentParser()
     parser.add_argument("-f", "--file", help="data file to process", default='node_2_backyard_03.2021.csv')
-    parser.add_argument("-i", "--interval", help="sample interval (0-60 seconds)", type=int, default=60)
+    parser.add_argument("-i", "--interval", help="sample interval (0-60 minutes)", type=int, default=0)
     parser.add_argument("-s", "--source", help="data source: sd or main", choices=['sd', 'main'], default='main')
     args = parser.parse_args()
-
-    # if args.interval:
-    #     sample_interval = args.interval
-    # if args.file:
-    #     data_file = args.file
 
     if args.source == 'main':
         print_values_from_main(args.file, args.interval)
@@ -33,11 +32,11 @@ def print_values_from_main(data_file, sample_interval):
     """
     Print values received by a 'main' node and written to a log file.
     :param data_file: Read raw data from this file
-    :param sample_interval: Sample the data to yield values at this interval
+    :param sample_interval: Sample the data to yield values at this interval; 0 == print every data row
     :return: Nothing; writes to stdout
     """
 
-    print("Node, Msg #, Msg time, Msg Time (Unix), Tx time (ms), Bat V, Temp C, Rel H %, Node Status")
+    print("Node, Msg #, Msg time, Msg Time (Unix), Tx time (ms), Bat V, Temp C, Rel H %, Node Status, RSSI")
     value_written = False
     with open(data_file, "r") as in_file:
         while True:
@@ -54,31 +53,37 @@ def print_values_from_main(data_file, sample_interval):
             #
             # parse the line by spaces to access the numeric data more easily. This will
             # yield 22 fields.
+            #
+            # The new main has X fields when parsed:
+            # process_node_data.py:60
+
             fields = line.strip().replace(',', '').split()
 
-            if len(fields) < 22:
+            if len(fields) < 31:
                 continue  # if this row is not a data row, ignore it
 
             node = fields[2]
             msg_num = fields[4]
             # Extract the Unix time value and convert to human-readable
-            msg_ux_time = fields[7]  # Unix time
+            msg_ux_time = fields[6]  # Unix time
             # if you encounter a "year is out of range" error, the timestamp
             # may be in milliseconds, try `ts /= 1000` in that case
             msg_time = datetime.utcfromtimestamp(int(msg_ux_time)).strftime('%Y-%m-%d %H:%M:%S')
 
-            # only print data on sample_interval minute intervals. Since there are ~3 samples per min,
+            # Old: only print data on sample_interval minute intervals. Since there are ~3 samples per min,
             # only print the first one for each of the 5 minute intervals.
+            # New: The leaf node now samples once every 5 minutes. Use sample_interval == 0
+            # to print every line. jhrg 7/25/21
             msg_minute = datetime.utcfromtimestamp(int(msg_ux_time)).strftime('%M')
-            if int(msg_minute) % sample_interval == 0:
-                if not value_written:
-                    tx_time = fields[10]  # ms
-                    bat = int(fields[13]) / 100  # volts
-                    temp = int(fields[16]) / 100  # deg C
-                    hum = int(fields[19]) / 100  # % rel hum
-                    status = fields[22]  # status in hex
-
-                    print(f"{node},{msg_num},{msg_time},{msg_ux_time},{tx_time},{bat},{temp},{hum},{status}")
+            if sample_interval == 0 or int(msg_minute) % sample_interval == 0:
+                if sample_interval == 0 or not value_written:
+                    tx_time = fields[12]  # ms
+                    bat = int(fields[8]) / 100  # volts
+                    temp = int(fields[15]) / 100  # deg C
+                    hum = int(fields[18]) / 100  # % rel hum
+                    status = fields[21]  # status in hex
+                    rssi = fields[23] # RSSI in dBm (?)
+                    print(f"{node},{msg_num},{msg_time},{msg_ux_time},{tx_time},{bat},{temp},{hum},{status},{rssi}")
                     value_written = True
                 else:
                     continue
