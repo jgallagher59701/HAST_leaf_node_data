@@ -1,0 +1,14 @@
+These files hold CSV data reads from leaf nodes in the backyard
+and read from those nodes lora transmissions by a main node running
+in the house.
+
+From the notebook:
+
+5/12/21 I repositioned the SHT-30D sensor so it was horizontal and
+~1 inch below the surface of the soil. Previously it was vertical
+and ~3-4 inches below the surface.
+
+6/24/21 I repositioned the #2 and #3 Meter sensors so they are
+horizontal and ~1 inch below the surface. The Meter #2 sensor is
+next to leaf node 3's sensor. Meter #3 sensor is in the same general
+location.
