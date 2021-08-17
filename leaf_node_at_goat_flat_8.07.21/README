@@ -1,0 +1,11 @@
+We buried a leaf node with one SHT-30D at Goat Flat on 8/7/21. The
+node is set to sample every hour and is still sending the data via
+lora although there is nothing there to receive the signal. Instead of
+shutting the lora off, I left the leaf node code unchanged from the
+version I'm testing in the back yard at 186 Kodiak Trail.
+
+Pictures, maps and waypoint.kml are here. Also, the GPS and Picture data are
+online in my jhrg@mac.com GAIA GPS account.
+
+Location: 46.05105, -113.27878 at 9,132 ft
+
