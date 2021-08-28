@@ -9,6 +9,8 @@ James Gallagher <jgallagher@opendap.org> 8/15/21
 
 import argparse
 from datetime import datetime
+import numpy as np
+from scipy.signal import butter, filtfilt
 
 
 def main():
@@ -26,8 +28,39 @@ def main():
         calc_values_from_siglent_csv(args.data_file, args.zero, args.skip, args.resistance, args.delta_t)
     elif args.what == 'print':
         print_values_from_siglent_csv(args.data_file, args.zero, args.skip, args.interval)
+    elif args.what == 'filter':
+        # Filter requirements.
+        T = 7.0  # Sample Period, seconds
+        fs = 200.0  # sample rate, Hz
+        cutoff = 10  # desired cutoff frequency of the filter, Hz
+        nyq = 0.5 * fs  # Nyquist Frequency
+        order = 2
+        n = int(T * fs)  # total number of samples
+
+        y = butter_lowpass_filter(data, cutoff, fs, order)
+        fig = go.Figure()
+        fig.add_trace(go.Scatter(
+            y=data,
+            line=dict(shape='spline'),
+            name='signal with noise'
+        ))
+        fig.add_trace(go.Scatter(
+            y=y,
+            line=dict(shape='spline'),
+            name='filtered signal'
+        ))
+        fig.show()
     else:
         parser.usage()
+
+
+# WIP
+def butter_lowpass_filter(data, cutoff, fs, order):
+    normal_cutoff = cutoff / nyq
+    # Get the filter coefficients
+    b, a = butter(order, normal_cutoff, btype='low', analog=False)
+    y = filtfilt(b, a, data)
+    return y
 
 
 def print_values_from_siglent_csv(data_file, zero_value, skip, sample_interval):
