@@ -10,8 +10,9 @@ James Gallagher <jgallagher@opendap.org> 8/15/21
 import argparse
 from datetime import datetime
 import numpy as np
-from scipy.signal import butter, filtfilt
+from scipy.signal import butter, filtfilt, sosfilt
 import plotly.graph_objects as go
+
 
 def main():
     parser = argparse.ArgumentParser()
@@ -30,52 +31,51 @@ def main():
         print_values_from_siglent_csv(args.data_file, args.zero, args.skip, args.interval)
     elif args.what == 'filter':
         # Filter requirements.
-        T = 7.0  # Sample Period, seconds
-        fs = 200.0  # sample rate, Hz
-        cutoff = 10  # desired cutoff frequency of the filter, Hz
-        nyq = 0.5 * fs  # Nyquist Frequency
-        order = 2
-        n = int(T * fs)  # total number of samples
+        # T = 14.0  # Sample Period, seconds
+        fs = 100000.0  # sample rate, Hz
+        cutoff = 3000  # desired cutoff frequency of the filter, Hz
+        # nyq = 0.5 * fs  # Nyquist Frequency
+        order = 5
+        # n = int(T * fs)  # total number of samples
 
         # data_file could be '/Users/jimg/src/opendap/HAST_leaf_node_data/Current_measurement/LN_Current_13dBm_23dBm/13dBm_current.csv'
 
         data = np.genfromtxt(args.data_file, delimiter=',', skip_header=args.skip)
-        # slice so we have only the voltage values. data_file holds both the time and the values
-        # as CSV data.
-        data = data[...,1] * 1000
+        # slice so we have only the voltage values. 'data_file' holds both the sample time
+        # and the voltage as CSV data. Convert Volts to mA (voltage measured with a 2.2ohm resistor)
+        data = data[...,1] * 1000 / args.resistance
 
         y = butter_lowpass_filter(data, cutoff, fs, order)
 
-        print(y[::1000])
-
+        calc_values_from_siglent_csv(args.data_file, args.zero, args.skip, args.resistance, args.delta_t)
+        
         fig = go.Figure()
         fig.add_trace(go.Scatter(
-            y=data[::1000],
+            y=data[::100],
             line=dict(shape='spline'),
             name='signal with noise'
         ))
         fig.add_trace(go.Scatter(
-            y=y[::1000],
+            y=y[::100],
             line=dict(shape='spline'),
             name='filtered signal'
         ))
         fig.show()
     else:
-        parser.usage()
+        args.usage()
 
 
-# WIP
 def butter_lowpass_filter(data, cutoff, fs, order):
     nyq = 0.5 * fs  # Nyquist Frequency
     normal_cutoff = cutoff / nyq
-    # Get the filter coefficients
-    b, a = butter(order, normal_cutoff, btype='low', analog=False)
-    y = filtfilt(b, a, data)
+    # Get the filter coefficients - second order sections
+    sos = butter(order, normal_cutoff, btype='low', analog=False, output='sos')
+    y = sosfilt(sos, data)
     return y
 
 
 def print_values_from_siglent_csv(data_file, zero_value, skip, sample_interval):
-    print("Second, Volt")
+    print("Seconds, Volts")
     with open(data_file, "r") as in_file:
         i = 0
         line = in_file.readline()
@@ -124,6 +124,7 @@ def calc_values_from_siglent_csv(data_file, zero_value, skip, resistance, delta_
         mAs = amp_samples * delta_t * 1000
         total_time = total_time * delta_t
         print(f"Start time: {start_time}, End time: {end_time}, Total time: {total_time}, mAs: {mAs}\n")
+
 
 if __name__ == "__main__":
     main()
