@@ -11,7 +11,7 @@ import argparse
 from datetime import datetime
 import numpy as np
 from scipy.signal import butter, filtfilt
-
+import plotly.graph_objects as go
 
 def main():
     parser = argparse.ArgumentParser()
@@ -20,7 +20,7 @@ def main():
     parser.add_argument("-s", "--skip", help="skip the first N lines", default=12, type=int)
     parser.add_argument("-r", "--resistance", help="Resistance used in measurement", default=2.2, type=float)
     parser.add_argument("-d", "--delta_t", help="Delta time for samples", default=0.000005, type=float)
-    parser.add_argument("-w", "--what", help="Do what: Calc mAs; Print data", default='calc')
+    parser.add_argument("-w", "--what", help="Do what: calc mAs; print data, filter data", default='calc')
     parser.add_argument('data_file', help='Read from this file')
     args = parser.parse_args()
 
@@ -37,15 +37,25 @@ def main():
         order = 2
         n = int(T * fs)  # total number of samples
 
+        # data_file could be '/Users/jimg/src/opendap/HAST_leaf_node_data/Current_measurement/LN_Current_13dBm_23dBm/13dBm_current.csv'
+
+        data = np.genfromtxt(args.data_file, delimiter=',', skip_header=args.skip)
+        # slice so we have only the voltage values. data_file holds both the time and the values
+        # as CSV data.
+        data = data[...,1] * 1000
+
         y = butter_lowpass_filter(data, cutoff, fs, order)
+
+        print(y[::1000])
+
         fig = go.Figure()
         fig.add_trace(go.Scatter(
-            y=data,
+            y=data[::1000],
             line=dict(shape='spline'),
             name='signal with noise'
         ))
         fig.add_trace(go.Scatter(
-            y=y,
+            y=y[::1000],
             line=dict(shape='spline'),
             name='filtered signal'
         ))
@@ -56,6 +66,7 @@ def main():
 
 # WIP
 def butter_lowpass_filter(data, cutoff, fs, order):
+    nyq = 0.5 * fs  # Nyquist Frequency
     normal_cutoff = cutoff / nyq
     # Get the filter coefficients
     b, a = butter(order, normal_cutoff, btype='low', analog=False)
