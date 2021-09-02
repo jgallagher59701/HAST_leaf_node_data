@@ -8,9 +8,8 @@ James Gallagher <jgallagher@opendap.org> 8/15/21
 """
 
 import argparse
-from datetime import datetime
 import numpy as np
-from scipy.signal import butter, filtfilt, sosfilt
+from scipy.signal import butter, sosfilt
 import plotly.graph_objects as go
 
 
@@ -18,19 +17,17 @@ import plotly.graph_objects as go
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("-i", "--interval", help="read every Xth value, ignored for 'filter'", default=1000, type=int)
-    parser.add_argument("-z", "--zero", help="Any value < this is zero", default=0.0, type=float)
+    parser.add_argument("-z", "--zero", help="Any value < this is zero", default=0.00015, type=float)
     parser.add_argument("-s", "--skip", help="skip the first N lines", default=12, type=int)
     parser.add_argument("-r", "--resistance", help="Resistance used in measurement", default=2.2, type=float)
-    parser.add_argument("-d", "--delta_t", help="Delta time for samples", default=0.000005, type=float)
-    parser.add_argument("-o", "--offset", help="Vertical offset", default=0.0, type=float)
-    parser.add_argument("-w", "--what", help="Do what: calc mAs; print data, filter data", default='calc')
+    parser.add_argument("-d", "--delta_t", help="Sample time period", default=0.000005, type=float)
+    parser.add_argument("-o", "--offset", help="Voltage offset", default=0.0, type=float)
+    parser.add_argument("-w", "--what", help="Do what: print or filter data", default='print')
     parser.add_argument("-p", "--plot", help="Plot the raw and filtered data", default=False, type=bool)
     parser.add_argument('data_file', help='Read from this file')
     args = parser.parse_args()
 
-    if args.what == 'calc':
-        calc_values_from_siglent_csv(args.data_file, args.zero, args.skip, args.resistance, args.delta_t)
-    elif args.what == 'print':
+    if args.what == 'print':
         print_values_from_siglent_csv(args.data_file, args.zero, args.skip, args.interval)
     elif args.what == 'filter':
         # Filter requirements.
@@ -51,7 +48,9 @@ def main():
 
         y = butter_lowpass_filter(data, cutoff, fs, order)
 
-        if (args.plot):
+        y[y<args.zero] = 0.0
+
+        if args.plot:
             fig = go.Figure()
             fig.add_trace(go.Scatter(
                 y=data[::100],
@@ -131,39 +130,6 @@ def calc_values_from_filtered_data(data, zero_value, delta_t, resistance):
     mAs = (volts_samples / samples) / resistance * 1000
 
     print(f"Start time: {start_time}, End time: {end_time}, Total time: {total_time}, mAs: {mAs}\n")
-
-
-def calc_values_from_siglent_csv(data_file, zero_value, skip, resistance, delta_t):
-    with open(data_file, "r") as in_file:
-        i = 0
-        amp_samples = 0.0
-        total_time = 0.0
-        start_time = 0.0
-        end_time = 0.0
-
-        line = in_file.readline()
-        while line and (i < skip):
-            line = in_file.readline()
-            i += 1
-
-        while line:
-            fields = line.strip().replace(',', ' ').split()
-            (time, volts) = fields
-            volts = float(volts)
-            if volts > zero_value:
-                if start_time == 0.0:
-                    start_time = time
-                end_time = time
-                total_time += 1     # count the samples, divide once outside of loop
-                amp_samples += (volts / resistance)     # As above, factor out '* delta_t'
-
-            line = in_file.readline()
-            i += 1
-
-        # Complete calculations and print the results
-        mAs = amp_samples * delta_t * 1000
-        total_time = total_time * delta_t
-        print(f"Start time: {start_time}, End time: {end_time}, Total time: {total_time}, mAs: {mAs}\n")
 
 
 if __name__ == "__main__":
