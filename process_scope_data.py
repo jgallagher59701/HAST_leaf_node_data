@@ -11,7 +11,7 @@ import argparse
 import numpy as np
 from scipy.signal import butter, sosfilt
 import plotly.graph_objects as go
-
+import plotly.express as px
 
 # For the 23dBm file, -d 000005 and -o 0.0; for the 13dBm file, -d 0.00001 -o 0.0765
 def main():
@@ -24,6 +24,7 @@ def main():
     parser.add_argument("-o", "--offset", help="Voltage offset", default=0.0, type=float)
     parser.add_argument("-w", "--what", help="Do what: print or filter data", default='print')
     parser.add_argument("-p", "--plot", help="Plot the raw and filtered data", default=False, type=bool)
+    parser.add_argument("-f", "--fancy", help="Plot fancy", default=True, type=bool)
     parser.add_argument('data_file', help='Read from this file')
     args = parser.parse_args()
 
@@ -44,29 +45,32 @@ def main():
 
         # slice so we have only the voltage values. 'data_file' holds both the sample time
         # and the voltage as CSV data.
-        data = data[...,1] + args.offset    # * 1000 / args.resistance
+        voltages = data[..., 1] + args.offset    # * 1000 / args.resistance
 
-        y = butter_lowpass_filter(data, cutoff, fs, order)
+        filtered_volts = butter_lowpass_filter(voltages, cutoff, fs, order)
 
+        # Threshold post filtering.
         # y is derived from 'data' which is a numpy array, so this works to set
-        # all the values of 'y' less than args.zero to 0.0
-        y[y < args.zero] = 0.0
+        # all the values of 'y' less than args.zero to 0.0.
+        filtered_volts[filtered_volts < args.zero] = 0.0
 
         if args.plot:
             fig = go.Figure()
             fig.add_trace(go.Scatter(
-                y=data[::100],  # print every 100 values
+                y=voltages[::100],  # print every 100 values
                 line=dict(shape='spline'),
                 name='signal with noise'
             ))
             fig.add_trace(go.Scatter(
-                y=y[::100],
+                y=filtered_volts[::100],
                 line=dict(shape='spline'),
                 name='filtered signal'
             ))
+            fig.update_xaxes(title_text="time,s")
+            fig.update_yaxes(title_text="volts")
             fig.show()
 
-        calc_values_from_filtered_data(y, args.zero, args.delta_t, args.resistance)
+        calc_values_from_filtered_data(filtered_volts, args.zero, args.delta_t, args.resistance)
     else:
         args.usage()
 
