@@ -48,12 +48,14 @@ def main():
 
         y = butter_lowpass_filter(data, cutoff, fs, order)
 
-        y[y<args.zero] = 0.0
+        # y is derived from 'data' which is a numpy array, so this works to set
+        # all the values of 'y' less than args.zero to 0.0
+        y[y < args.zero] = 0.0
 
         if args.plot:
             fig = go.Figure()
             fig.add_trace(go.Scatter(
-                y=data[::100],
+                y=data[::100],  # print every 100 values
                 line=dict(shape='spline'),
                 name='signal with noise'
             ))
@@ -64,7 +66,6 @@ def main():
             ))
             fig.show()
 
-        # data[...,0] slices just the time info
         calc_values_from_filtered_data(y, args.zero, args.delta_t, args.resistance)
     else:
         args.usage()
