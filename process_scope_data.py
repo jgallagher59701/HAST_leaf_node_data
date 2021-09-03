@@ -24,7 +24,7 @@ def main():
     parser.add_argument("-o", "--offset", help="Voltage offset", default=0.0, type=float)
     parser.add_argument("-w", "--what", help="Do what: print or filter data", default='print')
     parser.add_argument("-p", "--plot", help="Plot the raw and filtered data", default=False, type=bool)
-    parser.add_argument("-f", "--fancy", help="Plot fancy", default=True, type=bool)
+    parser.add_argument("-R", "--raw", help="Plot raw data too", default=False, type=bool)
     parser.add_argument('data_file', help='Read from this file')
     args = parser.parse_args()
 
@@ -47,6 +47,7 @@ def main():
         # and the voltage as CSV data.
         voltages = data[..., 1] + args.offset    # * 1000 / args.resistance
 
+
         filtered_volts = butter_lowpass_filter(voltages, cutoff, fs, order)
 
         # Threshold post filtering.
@@ -54,21 +55,37 @@ def main():
         # all the values of 'y' less than args.zero to 0.0.
         filtered_volts[filtered_volts < args.zero] = 0.0
 
+        mA = voltages / args.resistance * 1000.0
+        filtered_mA = filtered_volts / args.resistance * 1000.0
+
+        fig1 = px.line(y=filtered_mA[::100],
+                       line_shape='linear',
+                          #x0=data[0, 0],
+                          #dx=args.delta_t * 100,      # Scale delta_t but
+                          title="Automatic Labels Based on Data Frame Column Names")
+        fig1.show()
+
         if args.plot:
             fig = go.Figure()
+            if args.raw:
+                fig.add_trace(go.Scatter(
+                    x0=data[0, 0],
+                    dx=args.delta_t * 100,  # Scale delta_t but 100 since we sample 'filtered_volts'
+                    y=mA[::100],  # print every 100 values
+                    line=dict(shape='spline'),
+                    name='signal with noise'
+                ))
             fig.add_trace(go.Scatter(
-                y=voltages[::100],  # print every 100 values
-                line=dict(shape='spline'),
-                name='signal with noise'
-            ))
-            fig.add_trace(go.Scatter(
-                y=filtered_volts[::100],
+                x0=data[0, 0],
+                dx=args.delta_t * 100,      # Scale delta_t but 100 since we sample 'filtered_volts'
+                y=filtered_mA[::100],
                 line=dict(shape='spline'),
                 name='filtered signal'
             ))
-            fig.update_xaxes(title_text="time,s")
-            fig.update_yaxes(title_text="volts")
-            fig.show()
+            fig.update_xaxes(title_text="time (s)")
+            fig.update_yaxes(title_text="current (mA)")
+
+            fig.show(title="Leaf node current use during the operating phase")
 
         calc_values_from_filtered_data(filtered_volts, args.zero, args.delta_t, args.resistance)
     else:
@@ -105,8 +122,8 @@ def print_values_from_siglent_csv(data_file, zero_value, skip, sample_interval):
 
 def calc_values_from_filtered_data(data, zero_value, delta_t, resistance):
     """
-    @param data is corrected mV for a time slice
-    @param zero_value is the value to call 'zero mA'
+    @param data is corrected voltage for a time slice
+    @param zero_value is the value to call 'zero volts' FIXME Remove
     @param delta_t is the duration of each sample
     @param resistance Used to convert mV to mA
     """
