@@ -47,7 +47,6 @@ def main():
         # and the voltage as CSV data.
         voltages = data[..., 1] + args.offset    # * 1000 / args.resistance
 
-
         filtered_volts = butter_lowpass_filter(voltages, cutoff, fs, order)
 
         # Threshold post filtering.
@@ -58,12 +57,17 @@ def main():
         mA = voltages / args.resistance * 1000.0
         filtered_mA = filtered_volts / args.resistance * 1000.0
 
-        fig1 = px.line(y=filtered_mA[::100],
+        fig1 = px.line(x=data[::100, 0],
+                       y=filtered_mA[::100],
                        line_shape='linear',
-                          #x0=data[0, 0],
-                          #dx=args.delta_t * 100,      # Scale delta_t but
-                          title="Automatic Labels Based on Data Frame Column Names")
+                       title="Leaf Node Current Profile During the Wake State, LoRa Tx at 23dBm")
+
+        fig1.update_xaxes(title_text="time (s)")
+        fig1.update_yaxes(title_text="current (mA)")
+
         fig1.show()
+
+        fig1.write_image("Current_measurement/figures/fig1.png")
 
         if args.plot:
             fig = go.Figure()
