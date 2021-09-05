@@ -5,6 +5,8 @@ Probably need to run these data through a low pass filter since the
 'calc' function seems to have the time
 
 James Gallagher <jgallagher@opendap.org> 8/15/21
+
+This is old has been replaced by a Jupyter notebook.
 """
 
 import argparse
