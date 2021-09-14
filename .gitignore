@@ -50,3 +50,9 @@ modules.order
 Module.symvers
 Mkfile.old
 dkms.conf
+
+.idea/
+.ipynb_checkpoints/
+Meter_and_leaf_nodes/.idea/
+Meter_and_leaf_nodes/EM40647_Data_hourly_corrected_old.csv
+
