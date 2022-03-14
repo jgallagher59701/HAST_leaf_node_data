@@ -1,0 +1,26 @@
+This node was deployed on 28 April 2021 and ran util 7 Jan 2022.
+
+It was in the back yard, buried with the sensor abotu1 inch under the
+soil. It sent data to a LoRa receiver in the house (with varying
+running status since it was built on a breadboard).
+
+After I opened the node's enclosure, I measured the battery voltage at
+3.1 v. There's a picture.
+
+The inside of the enclosure was dry but did have three spots. The
+board, electronics and batteries appear untouched. There is no sign of
+water damage (or any damage).
+
+The last entry in the SD cards CSV file is a timestamp of Monday,
+April 19, 2038 7:34:14 AM GMT-06:00 DST. The main node was
+configured to send the current time as it's reply to the leaf node.
+The leaf node then updated its RTC to the received time, so it's
+possible that a bad packet from the Main node causes the leaf node to
+set its time to a bogus value. That would explain the silence once the
+time was set to 2038 (the leaf node's software sleeps for 300 seconds
+past the current time).
+
+The leaf node was configured to sample once every 5 mins (301 secs)
+and made 72,468 samples before stopping - equivalent to a little more
+than 8 years of operation at one sample per hour.
+

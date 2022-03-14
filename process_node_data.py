@@ -16,14 +16,17 @@ from datetime import datetime
 
 
 def main():
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser(description="Read CSV data from the leaf node (SD card or as saved by the main node)")
     parser.add_argument("-f", "--file", help="data file to process", default='node_2_backyard_03.2021.csv')
-    parser.add_argument("-i", "--interval", help="sample interval (0-60 minutes)", type=int, default=0)
+    parser.add_argument("-i", "--interval", help="sample interval (0-60 minutes) - use with multiple samples/min", type=int, default=0)
+    parser.add_argument("-H", "--hourly", help="print one row per hour", type=bool, default=True)
     parser.add_argument("-s", "--source", help="data source: sd or main", choices=['sd', 'main'], default='main')
     args = parser.parse_args()
 
     if args.source == 'main':
         print_values_from_main(args.file, args.interval)
+    elif args.hourly:
+        print_values_from_sd_hourly(args.file)
     else:
         print_values_from_sd(args.file, args.interval)
 
@@ -92,9 +95,61 @@ def print_values_from_main(data_file, sample_interval):
                 continue
 
 
+def print_values_from_sd_hourly(data_file):
+    """
+    Print values from the leaf node's SD card.
+
+    TODO Hack this for files where there are several samples per hour but
+    gaps of several minutes between the samples.
+
+    :param data_file:
+    :param sample_interval:
+    :return: Writes to stdout
+    """
+
+    print("Node, Msg #, Msg time, Msg Time (Unix), Tx time (ms), Bat V, Temp C, Rel H %, Node Status")
+    hour_last_written = -1      # print the very first row
+    with open(data_file, "r") as in_file:
+        while True:
+            line = in_file.readline()
+            if not line:
+                break  # This is the loop exit
+
+            # There are 8 fields per csv row
+            #
+            # Sample row: 2, 1, 1612714606, 425, 0, 1904, 3480, 0x00
+            # node, message num, message time, bat v, tx time, temp, hum, status
+            fields = line.strip().replace(',', '').split()
+
+            if len(fields) < 8:
+                continue  # if this row is not a data row, ignore it
+
+            (node, msg_num, msg_ux_time, bat, tx_time, temp, hum, status) = fields
+
+            # if you encounter a "year is out of range" error, the timestamp
+            # may be in milliseconds, try `ts /= 1000` in that case
+            msg_ux_time = int(msg_ux_time)
+            msg_time = datetime.utcfromtimestamp(msg_ux_time).strftime('%Y-%m-%d %H:%M:%S')
+
+            # only print data on sample_interval minute intervals. Since there are ~3 samples per min,
+            # only print the first one for each of the sample_interval minute intervals.
+            msg_hour = datetime.utcfromtimestamp(msg_ux_time).strftime('%H')
+            if int(msg_hour) != hour_last_written:
+                hour_last_written = int(msg_hour)
+                bat = int(bat) / 100  # volts
+                temp = int(temp) / 100  # deg C
+                hum = int(hum) / 100  # % rel hum
+
+                print(f"{node},{msg_num},{msg_time},{msg_ux_time},{tx_time},{bat},{temp},{hum},{status}")
+
+
 def print_values_from_sd(data_file, sample_interval):
     """
-    Print values from the leaf node's SD card
+    Print values from the leaf node's SD card.
+
+    This version of print_values... is for files where there are several samples
+    per minute.
+
     :param data_file:
     :param sample_interval:
     :return: Writes to stdout
