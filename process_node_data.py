@@ -103,7 +103,6 @@ def print_values_from_sd_hourly(data_file):
     gaps of several minutes between the samples.
 
     :param data_file:
-    :param sample_interval:
     :return: Writes to stdout
     """
 
