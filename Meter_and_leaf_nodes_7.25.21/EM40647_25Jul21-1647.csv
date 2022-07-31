@@ -1,6 +1,6 @@
 ﻿EM40647,Port 1,Port 1,Port 1,Port 2,Port 2,Port 2,Port 3,Port 3,Port 3,Port 4,Port 4,Port 4,Port 5,Port 5,Port 5
 4882 records,5TE Moisture/Temp/EC,5TE Moisture/Temp/EC,5TE Moisture/Temp/EC,5TE Moisture/Temp/EC,5TE Moisture/Temp/EC,5TE Moisture/Temp/EC,5TE Moisture/Temp/EC,5TE Moisture/Temp/EC,5TE Moisture/Temp/EC,5TE Moisture/Temp/EC,5TE Moisture/Temp/EC,5TE Moisture/Temp/EC,5TE Moisture/Temp/EC,5TE Moisture/Temp/EC,5TE Moisture/Temp/EC
-Measurement Time,m³/m³ VWC,°C Temp,mS/cm EC Bulk,m³/m³ VWC,°C Temp,mS/cm EC Bulk,m³/m³ VWC,°C Temp,mS/cm EC Bulk,m³/m³ VWC,°C Temp,mS/cm EC Bulk,m³/m³ VWC,°C Temp,mS/cm EC Bulk
+Measurement Time,m^3/m^3 VWC,C Temp,mS/cm EC Bulk,m^3/m^3 VWC,C Temp,mS/cm EC Bulk,m^3/m^3 VWC,C Temp,mS/cm EC Bulk,m^3/m^3 VWC,C Temp,mS/cm EC Bulk,m^3/m^3 VWC,C Temp,mS/cm EC Bulk
 6/15/2021 3:25 AM,#N/A,#N/A,#N/A,#N/A,#N/A,#N/A,#N/A,#N/A,#N/A,#N/A,#N/A,#N/A,#N/A,#N/A,#N/A
 6/15/2021 3:30 AM,0.005,22.8,0.00,-0.001,22.7,0.00,0.044,23.4,0.00,0.024,22.4,0.00,-0.006,21.4,0.00
 6/15/2021 3:35 AM,0.005,22.7,0.00,-0.001,22.4,0.00,0.043,23.2,0.00,0.024,22.2,0.00,-0.006,21.1,0.00

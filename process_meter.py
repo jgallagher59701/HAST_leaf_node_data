@@ -42,7 +42,7 @@ def process_values(data_file, offset, sample_interval):
     m³/m³ VWC, °C Temp, mS/cm EC Bulk
 
     The timestamps are off on some of the data, so there are two timestamps in the output. The
-    first is the original and the seconds is the result of applying the offset to that time.
+    first is the original and the second is the result of applying the offset to that time.
     """
 
     line_num = 0
