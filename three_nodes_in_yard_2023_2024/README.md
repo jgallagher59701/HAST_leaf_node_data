@@ -13,30 +13,30 @@ Node 10 is buried 1cm deep in dirt
 
 ## What data have been uploaded to Monitor My Watershed (MMW)?
 
-In 'data\_2025', the data in
-'Sensor\_data\_three\_nodes_\processed.csv' are the starting point for
+In 'data_2025', the data in
+'Sensor_data_three_nodes_processed.csv' are the starting point for
 getting this information to MMW.
 
-## The actual data files are in sub directories
+## The actual data files are in subdirectories
 
-### The sub-directory 'data\_2024'
+### The subdirectory 'data_2024'
 
-The sub-directory 'data\_2024' holds the raw data file from the 'main'
+The subdirectory 'data_2024' holds the raw data file from the 'main'
 From Sun Oct 01 2023 17:32:40 GMT+0000 to Sat Jan 27 2024 11:02:35
-GMT+0000. The file 'Sensor\_data.cs'v is the raw data file from the main
-node. File Sensor\_data\_three\_sensors.numbers (for the Mac spreadsheet program
+GMT+0000. The file 'Sensor_data.csv' is the raw data file from the main
+node. File Sensor_data_three_sensors.numbers (for the Mac spreadsheet program
 'numbers') has those same data processed a bit to start from Sat Oct
 14 2023 11:39:00 GMT+0000 to Sat Jan 27 2024 11:02:35 GMT+0000.
 
-### The sub-directory 'data\_2025'
+### The subdirectory 'data_2025'
 
-The sub-directory 'data\_2025' has 'Sensor\_data.csv' (the raw data file
+The subdirectory 'data_2025' has 'Sensor_data.csv' (the raw data file
 from the main node) from Sun Oct 01 2023 17:32:40 GMT+0000 to Mon Jan
 20 2025 18:02:35 GMT+0000. Also in this directory are
-'whole\_file\_processed.csv' which is the whole Sensor\_data.csv file
+'whole_file_processed.csv' which is the whole Sensor_data.csv file
 processed using a python script (clean_csv.py) so that values are not sensor counts
 but floating point numbers, lines of data are uniform and not
-intersperced with 'notes' left by the main node to simplify
+interspersed with 'notes' left by the main node to simplify
 troubleshooting, et cetera. Here's an example of the cleaning:
 
 The raw data:
@@ -58,9 +58,9 @@ Node,Message,Time UTC,Battery V,Last TX Dur ms,Temp C,Hum %,Status,Notes
 10,2,2023-10-09T05:56:46,4.16,3.86,25.41,29,0x2,RFM95_NO_REPLY
 ```
 
-Most importantly, also in 'data\_2025' are
-'Sensor\_data\_3\_nodes\_only.csv' and
-'Sensor\_data\_three\_nodes_\processed.csv' The raw and processed
+Most importantly, also in 'data_2025' are
+'Sensor_data_3_nodes_only.csv' and
+'Sensor_data_three_nodes_processed.csv' The raw and processed
 (clean) data for covering the period of time when all three sensors
 were (they are still) running and sampling at one hour intervals. 
 
