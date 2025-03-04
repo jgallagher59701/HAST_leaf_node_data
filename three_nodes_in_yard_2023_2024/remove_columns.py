@@ -34,7 +34,7 @@ def remove_unwanted_columns(input_filename, output_filename):
 
             # Look for the header row (first cell equals "Date and Time in UTC")
             if not header_found:
-                if row[0].strip() == "Date and Time in UTC":
+                if row[0].strip() == "Time":
                     header_found = True
                     # Write the new header with only the desired columns.
                     new_header = [row[i] for i in desired_indices]

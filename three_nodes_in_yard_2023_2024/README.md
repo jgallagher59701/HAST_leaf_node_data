@@ -62,7 +62,41 @@ Most importantly, also in 'data_2025' are
 'Sensor_data_3_nodes_only.csv' and
 'Sensor_data_three_nodes_processed.csv' The raw and processed
 (clean) data for covering the period of time when all three sensors
-were (they are still) running and sampling at one hour intervals. 
+were (they are still) running and sampling at one hour intervals.
+
+### How the data were processed so they could be uploaded
+
+#### Extract values for one sensor
+Use the `clean_csv.py` program to transform the raw data (above) into the clean 
+version (also shown above). Then run `split_csv.py` to make three `nodeX.csv` files
+so that data can be uploaded to different MMW sites. For each of those `nodeX.csv`
+files, use `reformat_csv.py` and `remove_columns.py` to produce the CSV file
+with time and four columns of data that will match the scheme for these data
+made using the MMW web UI. 
+
+For example:
+```
+ ../reformat_csv.py node10.csv node10_mmw_format.csv
+File 'node10.csv' has been reformatted and saved as 'node10_mmw_format.csv'.
+
+../remove_columns.py node10_mmw_format.csv HAST-2.1-Node10-2025-01-20.csv  
+Processed 'node10_mmw_format.csv' and saved output to 'HAST-2.1-Node10-2025-01-20.csv'.
+```
+
+#### Add the needed header information for a sensor
+
+The needed headers for uploading to MMW look like:
+```
+Sampling Feature UUID: a8098bc0-141d-4882-b251-bedc0219fe1b
+Date and Time in UTC+0
+Result UUID: ,36f4f6a1-2f36-4083-b8a8-94f50acdd066,55f349b7-3491-40de-a828-9abb31e9f20d,fbee68c8-5463-4a38-98a8-f985fba923e8,be1d621e-95d4-447e-bee7-97d4102c9f2e
+```
+Where the actual UUIDs come from the 'View Token UUID List' on the site
+information page or the various parts of that page's text areas. The 'View ...'
+has a handy copy-to-clipboard feature which can tame the insanity of 
+working with UUIDs.
+
+#### Upload and verify
 
 ## The raw data files contents and how to decode them
 
